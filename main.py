@@ -75,14 +75,13 @@ class MainGame():
             else:
                 self.hammer.going_down = False
                 self.hammer.going_up = True
-                self.hammer.original_image = self.hammer.image
         elif self.hammer.going_up:
             if self.hammer.current_degree > 0:
                 self.hammer.swing_up()
             else:
                 self.hammer.going_down = False
-                self.hammer.going_up = True
-                self.hammer.original_image = self.hammer.image
+                self.hammer.going_up = False
+                self.hammer.image = self.hammer.original_image
 
         self.hammer.final_draw()
 
@@ -99,6 +98,7 @@ class MainGame():
         self.clock.tick(self.FPS)
         self.hammer = Hammer(self.HAMMER_IMAGE)
         while self.run:
+            print(self.hammer.current_degree)
             #!This forloop only runs when a new key is pressed.
             #*This makes it perfect for the space thing. 
             for event in pygame.event.get():
@@ -108,6 +108,10 @@ class MainGame():
                 elif keys[pygame.K_SPACE]:
                     #*I think I will need an additional function to draw the hammer in motion.
                     self.hammer.going_down = True
+                    #!The commented code doesn't work because the self.hammer.image.get_width() and height changes and it won't be properly centered.
+                    #*This prevents the hammer to follow the cursor while hammer movement. 
+                    self.hammer.mouse_x = pygame.mouse.get_pos()[0] 
+                    self.hammer.mouse_y = pygame.mouse.get_pos()[1] 
             self.redraw()
 
 
@@ -126,7 +130,7 @@ class Hammer():
         self.x = None
         self.y = None
         #*Swinging and bringing back speed. 
-        self.swing_vel = 5
+        self.swing_vel = 1
         #*These two variables indicate whether the hammer is in the process of going_down or going_up
         self.going_down = False
         self.going_up = False
@@ -179,9 +183,9 @@ class Hammer():
         #*I set a colourkey to exclude while on the outer part and it worked perfectly!!
         #!I cannot just add the degrees because the self.image starts off with rotated image then
         self.image = pygame.transform.rotate(self.image, self.current_degree)
+        self.x = self.mouse_x - self.image.get_width() / 2
+        self.y = self.mouse_y - self.image.get_height() / 2
 
-        self.x = pygame.mouse.get_pos()[0] - self.image.get_width() / 2
-        self.y = pygame.mouse.get_pos()[1] - self.image.get_height() / 2
 
         #*Controls the speed on swinging down
         self.current_degree += self.swing_vel
@@ -190,11 +194,9 @@ class Hammer():
 
     def swing_up(self):
         self.image = self.original_image
-        self.image = pygame.transform.rotate(self.image, -self.current_degree)
-
-        self.x = pygame.mouse.get_pos()[0] - self.image.get_width() / 2
-        self.y = pygame.mouse.get_pos()[1] - self.image.get_height() / 2
-
+        self.image = pygame.transform.rotate(self.image, self.current_degree)
+        self.x = self.mouse_x - self.image.get_width() / 2
+        self.y = self.mouse_y - self.image.get_height() / 2
         self.current_degree -= self.swing_vel
 
 class Mole():

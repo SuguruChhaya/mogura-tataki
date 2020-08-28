@@ -4,6 +4,7 @@ For this, I have to learn how to tilt pygame images.
 '''
 
 import pygame
+import random
 pygame.init()
 pygame.font.init()
 
@@ -13,9 +14,19 @@ class MainGame():
     window = pygame.display.set_mode((WIDTH, HEIGHT))
     def __init__(self):
         self.run = True
+        self.FPS = 60
+        self.level = 0
+        self.lives = 5
+        self.mole_count = 9
+        self.moles = []
+        #*mole first stay above for 3.25 seconds (3250 milliseconds). Increment every fps
+        #Actual time will be max_time - 250 * self.level * FPS
+        #*This way self.mole_above_time_max will be 3000 for level 1 and will decrease by 250 every level. 
+        #*Every level will contain 
+        self.mole_above_time_max = self.FPS * 3250
+
         self.GRASS_BG = pygame.transform.scale(pygame.image.load("images/grass.png"), (MainGame.WIDTH, MainGame.HEIGHT))
         self.HEADER_FONT = pygame.font.SysFont("comicsans", 50)
-        self.ALIVE_MOLE = pygame.transform.scale(pygame.image.load('images/alive_mole.png'), (100, 100))
         self.HOLE_1 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
         self.HOLE_2 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
         self.HOLE_3 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
@@ -25,17 +36,31 @@ class MainGame():
         self.HOLE_7 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
         self.HOLE_8 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
         self.HOLE_9 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
+        self.HOLE_1.set_colorkey((255, 255, 255))
+        self.HOLE_2.set_colorkey((255, 255, 255))
+        self.HOLE_3.set_colorkey((255, 255, 255))
+        self.HOLE_4.set_colorkey((255, 255, 255))
+        self.HOLE_5.set_colorkey((255, 255, 255))
+        self.HOLE_6.set_colorkey((255, 255, 255))
+        self.HOLE_7.set_colorkey((255, 255, 255))
+        self.HOLE_8.set_colorkey((255, 255, 255))
+        self.HOLE_9.set_colorkey((255, 255, 255))
+        self.ALIVE_MOLE = pygame.transform.scale(pygame.image.load('images/alive_mole.png'), (100, 100))
+        self.ALIVE_MOLE.set_colorkey((255, 255, 255))
         self.BEATEN_MOLE = pygame.transform.scale(pygame.image.load('images/beaten_mole.png'), (0, 0))
         self.JOEVAN = pygame.transform.scale(pygame.image.load('images/joevan.png'), (0, 0))
         self.TROLL = pygame.transform.scale(pygame.image.load('images/trollface.png'), (0, 0))
+        self.TROLL.set_colorkey((255, 0, 0))
         self.HAMMER_IMAGE = pygame.transform.scale(pygame.image.load('images/hammer.png'), (100, 150))
         self.HAMMER_IMAGE.set_colorkey((255, 255, 255))
-        self.FPS = 60
+
         self.clock = pygame.time.Clock()
+        
+        #*mole variables
 
     def draw_background(self):
         MainGame.window.blit(self.GRASS_BG, (0,0))
-        self.lives_label = self.HEADER_FONT.render(f'Lives: {None}', 1, (255, 255, 255))
+        self.lives_label = self.HEADER_FONT.render(f'Lives: {self.lives}', 1, (255, 255, 255))
         MainGame.window.blit(self.lives_label, (10, 10))
         self.level_label = self.HEADER_FONT.render(f'Level: {None}', 1, (255, 255, 255))
         MainGame.window.blit(self.level_label, (MainGame.WIDTH - self.level_label.get_width() - 10, 10))
@@ -60,6 +85,35 @@ class MainGame():
 
         #!Moles will have a specific place they will spawn so that the hole properly covers the mole
         #*Mole
+        
+        if len(self.moles) == 0:
+            self.level += 1
+            image_dict = {
+                'real_mole1': (self.ALIVE_MOLE, self.BEATEN_MOLE),
+                'real_mole2': (self.ALIVE_MOLE, self.BEATEN_MOLE),
+                'real_mole3': (self.ALIVE_MOLE, self.BEATEN_MOLE),
+                'real_mole4': (self.ALIVE_MOLE, self.BEATEN_MOLE),
+            }
+            mole_coords_tuple = [(75, 250), (275, 250), (475, 250), (75, 450), (275, 450), (475, 450), (75, 650), (275, 650), (475, 650)]
+            mole_coords_tuple_copy = mole_coords_tuple.copy()
+            if self.level >= 3:
+                image_dict['joevan'] = (self.JOEVAN, self.TROLL)
+            for i in range(self.mole_count):
+                images = image_dict[random.choice(list(image_dict.keys()))]
+                chosen = random.choice(mole_coords_tuple_copy)
+                mole_coords_tuple_copy.remove(chosen)
+                mole_x, mole_y = chosen
+                above_time = self.mole_above_time_max - 250 * self.FPS * self.level
+                
+                #self.moles.append(Mole(20, 30, ))
+            print(above_time)
+        else:
+            pass
+
+        '''
+        for mole in self.moles:
+            mole.draw()
+        '''
 
         #*Hole (9 holes)
         self.draw_hole()
@@ -71,6 +125,7 @@ class MainGame():
 
         elif self.hammer.going_down:
             if self.hammer.current_degree < 90:
+                self.hammer.can_swing = False
                 self.hammer.swing_down()
             else:
                 self.hammer.going_down = False
@@ -82,6 +137,7 @@ class MainGame():
                 self.hammer.going_down = False
                 self.hammer.going_up = False
                 self.hammer.image = self.hammer.original_image
+                self.hammer.can_swing = True
 
         self.hammer.final_draw()
 
@@ -98,7 +154,6 @@ class MainGame():
         self.clock.tick(self.FPS)
         self.hammer = Hammer(self.HAMMER_IMAGE)
         while self.run:
-            print(self.hammer.current_degree)
             #!This forloop only runs when a new key is pressed.
             #*This makes it perfect for the space thing. 
             for event in pygame.event.get():
@@ -107,11 +162,13 @@ class MainGame():
                     self.run = False
                 elif keys[pygame.K_SPACE]:
                     #*I think I will need an additional function to draw the hammer in motion.
-                    self.hammer.going_down = True
-                    #!The commented code doesn't work because the self.hammer.image.get_width() and height changes and it won't be properly centered.
-                    #*This prevents the hammer to follow the cursor while hammer movement. 
-                    self.hammer.mouse_x = pygame.mouse.get_pos()[0] 
-                    self.hammer.mouse_y = pygame.mouse.get_pos()[1] 
+                    #*Check whether a swinging motion is currently taking place
+                    if self.hammer.can_swing:
+                        self.hammer.going_down = True
+                        #!The commented code doesn't work because the self.hammer.image.get_width() and height changes and it won't be properly centered.
+                        #*This prevents the hammer to follow the cursor while hammer movement. 
+                        self.hammer.mouse_x = pygame.mouse.get_pos()[0] 
+                        self.hammer.mouse_y = pygame.mouse.get_pos()[1] 
             self.redraw()
 
 
@@ -130,8 +187,9 @@ class Hammer():
         self.x = None
         self.y = None
         #*Swinging and bringing back speed. 
-        self.swing_vel = 1
+        self.swing_vel = 6
         #*These two variables indicate whether the hammer is in the process of going_down or going_up
+        self.can_swing = True
         self.going_down = False
         self.going_up = False
         #*Find the current degree I am at
@@ -140,7 +198,7 @@ class Hammer():
     #*I also need to consider cropping the image
     #*I can add arguments with the default value of the self.image's width and height
     def final_draw(self):
-        MainGame.window.blit(self.image, (self.x, self.y))
+        MainGame.window.blit(self.image, (int(self.x), int(self.y)))
 
     def mouse_draw(self):
         hammer_x, hammer_y = pygame.mouse.get_pos()
@@ -211,10 +269,15 @@ class Mole():
         self.x = x
         self.y = y
         self.before_image, self.after_image = images
+        self.current_image = None
+        self.mole_vel = 1
         self.above_time = above_time
 
     def draw(self):
-        pass
+        MainGame.window.blit(self.current_image, (self.x, self.y))
+
+    def move(self):
+        self.y -= self.mole_vel
 
         
 

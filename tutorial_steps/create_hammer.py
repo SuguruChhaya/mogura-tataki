@@ -1,6 +1,7 @@
 import pygame
 from pygame import mixer
 import random
+#Creates weird errors when we don't intialize
 pygame.init()
 pygame.font.init()
 pygame.mixer.init()
@@ -9,25 +10,23 @@ class MainGame():
     WIDTH = 700
     HEIGHT = 800
 
+    #Set up basic window
     window = pygame.display.set_mode((WIDTH, HEIGHT))
 
     def __init__(self):
-        self.run = True
+        #Screen refreshes 60 times a second. 
         self.FPS = 60
-        self.moles_beaten = 0
-        self.level = 0
-        self.lives = 5
-        self.mole_count = 5
-        self.moles = []
-        self.movin_moles = []
-        self.mole_above_time_max = self.FPS
-        #Keep track of showing losing message
-        self.lost_counter = 0
+        #Used for the refreshing process
+        self.clock = pygame.time.Clock()
+        #Keep on refreshing or not boolean
+        self.run = True
 
-        self.GRASS_BG = pygame.transform.scale(pygame.image.load("images/grass.png"), (MainGame.WIDTH, MainGame.HEIGHT))
-        self.HEADER_FONT = pygame.font.SysFont("comicsans", 50)
+
+        #Importing images
+        self.GRASS_BG = pygame.transform.scale(pygame.image.load('images/grass.png'), (MainGame.WIDTH, MainGame.HEIGHT))
         self.HOLE_1 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
         self.HOLE_1.set_colorkey((255, 255, 255))
+        #Set colorkey and then copy
         self.HOLE_2 = self.HOLE_1.copy()
         self.HOLE_3 = self.HOLE_1.copy()
         self.HOLE_4 = self.HOLE_1.copy()
@@ -36,34 +35,49 @@ class MainGame():
         self.HOLE_7 = self.HOLE_1.copy()
         self.HOLE_8 = self.HOLE_1.copy()
         self.HOLE_9 = self.HOLE_1.copy()
-        
-
         self.ALIVE_MOLE = pygame.transform.scale(pygame.image.load('images/alive_mole.png'), (100, 100))
         self.ALIVE_MOLE.set_colorkey((255, 255, 255))
         self.BEATEN_MOLE = pygame.transform.scale(pygame.image.load('images/beaten_mole.jpg'), (100, 100))
         self.BEATEN_MOLE.set_colorkey((0,0,0))
-        self.JOEVAN = pygame.transform.scale(pygame.image.load('images/joevan.png'), (100, 100))
-        #?Somehow pygame recognized the collision when I set colorkey for joevan
-        #?colorkey not working tho
-        self.JOEVAN.set_colorkey((0,0,0))
+        #!Not using Joevan this time
         self.TROLL = pygame.transform.scale(pygame.image.load('images/trollface.png'), (100, 100))
         self.TROLL.set_colorkey((0, 0, 255))
         self.HAMMER_IMAGE = pygame.transform.scale(pygame.image.load('images/hammer.png'), (100, 150))
         self.SQUEAK_AUDIO = pygame.mixer.music.load('audio/squeak.mp3')
         self.LAUGH_AUDIO = pygame.mixer.music.load('audio/laugh.mp3')
         self.HAMMER_IMAGE.set_colorkey((255, 255, 255))
+        self.SQUEAK_AUDIO = pygame.mixer.music.load('audio/squeak.mp3')
+        self.LAUGH_AUDIO = pygame.mixer.music.load('audio/laugh.mp3')
 
-        self.clock = pygame.time.Clock()
+        #Keep track of beaten moles
+        self.moles_beaten =0
+        
+        self.level = 0
+        '''
+        self.level increase by 1 every time there are no moles left in self.moles. 
+        This means, self.level is going to increase by 1 the first time I run it. 
+        Therefore, self.level should be kept at 0. 
+        '''
+        self.lives = 5
+        self.mole_count = 5
+        self.moles = []
+        self.moving_moles = []
+        self.mole_above_time_max = self.FPS * 1
+        #For displaying lost message
+        self.lost_counter = 0
+        #Used to display message
+        self.HEADER_FONT = pygame.font.SysFont("comicsans", 50)
 
+    #*Since the lives and level in the background always update, I have to constantly
+    #*blit the background and the labels
     def draw_background(self):
-        MainGame.window.blit(self.GRASS_BG, (0, 0))
+        MainGame.window.blit(self.GRASS_BG, (0,0))
         self.lives_label = self.HEADER_FONT.render(f'Lives: {self.lives}', 1, (255, 255, 255))
         MainGame.window.blit(self.lives_label, (10, 10))
         self.level_label = self.HEADER_FONT.render(f'Level: {self.level}', 1, (255, 255, 255))
+        MainGame.window.blit(self.level_label, (MainGame.WIDTH - self.level_label.get_width() - 10, 10))
 
     def draw_hole_1(self):
-        #*To make the animation of the mole coming out better, I want to paste the top first, mole, then bottom.
-        #*This way, the mole will be hidden when it is at the bottom, but not when it is at the top. 
         MainGame.window.blit(self.HOLE_1, (50, 200), (0, 0, 150, 75))
         MainGame.window.blit(self.HOLE_2, (250, 200), (0, 0, 150, 75))
         MainGame.window.blit(self.HOLE_3, (450, 200), (0, 0, 150, 75))
@@ -86,90 +100,67 @@ class MainGame():
         MainGame.window.blit(self.HOLE_9, (450, 675), (0, 75, 150, 75))
 
     def redraw(self):
+        #Nothing to redraw for now
         self.draw_background()
 
         self.draw_hole_1()
+
         self.draw_hole_2()
 
-        if not (self.hammer.going_down or self.hammer.going_up):
-            self.hammer.mouse_draw()
+        self.hammer.mouse_draw()
 
         self.hammer.final_draw()
 
         pygame.display.update()
 
     def game_display(self):
+        #Basic structure
         self.clock.tick(self.FPS)
         self.hammer = Hammer(self.HAMMER_IMAGE)
         while self.run:
             for event in pygame.event.get():
-                keys = pygame.key.get_pressed()
                 if event.type == pygame.QUIT:
                     self.run = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.hammer.can_swing:
-                        self.hammer.going_down = True
-                        self.hammer.mouse_x = pygame.mouse.get_pos()[0]
-                        self.hammer.mouse_y = pygame.mouse.get_pos()[1]
+            
             self.redraw()
-
 
 class Hammer():
     def __init__(self, image):
         self.image = image
-        self.original_image = image
+        
         self.mask = pygame.mask.from_surface(self.image)
-
         self.x = None
         self.y = None
-        self.swing_vel = 6
-        self.can_swing = True
-        self.going_down = False
-        self.going_up = False
-        self.current_degree = 0
 
     def final_draw(self):
         MainGame.window.blit(self.image, (int(self.x), int(self.y)))
 
     def mouse_draw(self):
+        #First have to get x and y coords of hammer
         hammer_x, hammer_y = pygame.mouse.get_pos()
-        if hammer_x >= MainGame.WIDTH - self.image.get_width() / 2:
+        #Check x
+        #Check whether hammer is too right
+        if hammer_x > MainGame.WIDTH - self.image.get_width() / 2:
             self.x = MainGame.WIDTH - self.image.get_width()
-        elif hammer_x <= self.image.get_width() / 2:
+        #Check whether hammer is too left
+        elif hammer_x < self.image.get_width() / 2:
             self.x = 0
+        #Otherwise, just choose normal self.x 
         else:
             self.x = hammer_x - self.image.get_width() / 2
+        #Check y
+        #Check whether hammer is too up
         if hammer_y > MainGame.HEIGHT - self.image.get_width() / 2:
             self.y = MainGame.HEIGHT - self.image.get_height()
-        elif hammer_y <= self.image.get_height() / 2:
+        #Check whether hammer is too down
+        elif hammer_y < self.image.get_height() / 2:
             self.y = 0
+        #Otherwise, just normal self.y
         else:
             self.y = hammer_y - self.image.get_height() /2
 
-
-    def collide(self, obj):
-        offset_x = obj.x - self.x
-        offset_y = obj.y - self.y
-
-        return self.mask.overlap(obj.mask, (int(offset_x), int(offset_y))) != None 
-
-    def swing_down(self):
-        self.image = self.original_image
-        self.image.pygame.transform.rotate(self.image, self.current_degree)
-        self.x = self.mouse_x - self.image.get_width() / 2
-        self.y = self.mouse_y - self.image.get_width() / 2
-
-        self.current_degree += self.swing_vel
-
-    def swing_up(self):
-        self.image = self.original_image
-        self.image.pygame.transform.rotate(self.image, self.current_degree)
-        self.x = self.mouse_x - self.image.get_width() / 2
-        self.y = self.mouse_y - self.image.get_width() / 2
-
-        self.current_degree -= self.swing_vel
     
+
 
 game = MainGame()
 game.game_display()
-

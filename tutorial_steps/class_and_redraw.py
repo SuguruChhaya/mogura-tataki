@@ -1,5 +1,4 @@
 import pygame
-from pygame import mixer
 import random
 #Creates weird errors when we don't intialize
 pygame.init()

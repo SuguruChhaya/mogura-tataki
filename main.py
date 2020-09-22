@@ -127,7 +127,7 @@ class MainGame():
             mole_coords_tuple = [(75, 250), (275, 250), (475, 250), (75, 450), (275, 450), (475, 450), (75, 650), (275, 650), (475, 650)]
             mole_coords_tuple_copy = mole_coords_tuple.copy()
             if self.level >= 2:
-                image_dict['joevan'] = (self.JOEVAN, self.TROLL, 'audio/laugh.mp3')
+                image_dict['joevan'] = (self.TROLL, self.TROLL, 'audio/laugh.mp3')
             for i in range(self.mole_count):
                 images = image_dict[random.choice(list(image_dict.keys()))]
                 chosen = random.choice(mole_coords_tuple_copy)

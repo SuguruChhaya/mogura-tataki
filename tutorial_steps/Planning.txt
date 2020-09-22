@@ -1,0 +1,13 @@
+Going to be a pretty long video. Make use of the chromebook and show all the intermediate steps on the chromebook. 
+
+1. Import everything.
+2. Create a static window
+3. Make the MainGame class, pass __init__ and make the game_display and redraw methods.
+4. Adding basic variables
+5. Hammer class and follow mouse movements
+6. Letting the hammer swing
+7. Create moles using the Mole class 
+8. Creating the self.go_up() and go_down()
+9. Popping moles on the screen
+10. Collision detection
+11. Ending screen

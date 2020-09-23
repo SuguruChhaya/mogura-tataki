@@ -27,7 +27,6 @@ class MainGame():
         #!I have created copies of folders so that the code will be the same
         self.GRASS_BG = pygame.transform.scale(pygame.image.load('images/grass.png'), (MainGame.WIDTH, MainGame.HEIGHT))
         self.HOLE_1 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
-        self.HOLE_1.set_colorkey((255, 255, 255))
         #Set colorkey and then copy
         self.HOLE_2 = self.HOLE_1.copy()
         self.HOLE_3 = self.HOLE_1.copy()
@@ -38,14 +37,12 @@ class MainGame():
         self.HOLE_8 = self.HOLE_1.copy()
         self.HOLE_9 = self.HOLE_1.copy()
         self.ALIVE_MOLE = pygame.transform.scale(pygame.image.load('images/alive_mole.png'), (100, 100))
-        self.ALIVE_MOLE.set_colorkey((255, 255, 255))
-        self.BEATEN_MOLE = pygame.transform.scale(pygame.image.load('images/beaten_mole.jpg'), (100, 100))
-        self.BEATEN_MOLE.set_colorkey((0,0,0))
+        self.BEATEN_MOLE = pygame.transform.scale(pygame.image.load('images/beaten_mole.png'), (100, 100))
         #!Not using Joevan this time
         self.TROLL = pygame.transform.scale(pygame.image.load('images/trollface.png'), (100, 100))
-        self.TROLL.set_colorkey((0, 0, 255))
+
         self.HAMMER_IMAGE = pygame.transform.scale(pygame.image.load('images/hammer.png'), (100, 150))
-        self.HAMMER_IMAGE.set_colorkey((255, 255, 255))
+
         #!Only opens wav files
         #!Explain that I had lagging issues with 
         self.SQUEAK_AUDIO = pygame.mixer.Sound('audio/squeak.wav')
@@ -201,7 +198,7 @@ class MainGame():
         self.hammer.final_draw()
 
         if self.lives <= 0:
-            lost_label = self.HEADER_FONT.render("Game Over: You reached Level {self.level}", 1, (255, 255, 255))
+            lost_label = self.HEADER_FONT.render(f"Game Over: You reached Level {self.level}", 1, (255, 255, 255))
             MainGame.window.blit(lost_label, (int(MainGame.WIDTH / 2 - lost_label.get_width() /2 ), int(MainGame.HEIGHT / 2 - lost_label.get_height() / 2)))
             self.lost_counter += 1
             #!Check how long the message has been on the screen

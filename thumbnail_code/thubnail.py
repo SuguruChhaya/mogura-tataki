@@ -27,6 +27,7 @@ class MainGame():
         #!I have created copies of folders so that the code will be the same
         self.GRASS_BG = pygame.transform.scale(pygame.image.load('images/grass.png'), (MainGame.WIDTH, MainGame.HEIGHT))
         self.HOLE_1 = pygame.transform.scale(pygame.image.load('images/dirt_hole.png'), (150, 150))
+        self.HOLE_1.set_colorkey((255, 255, 255))
         #Set colorkey and then copy
         self.HOLE_2 = self.HOLE_1.copy()
         self.HOLE_3 = self.HOLE_1.copy()
@@ -37,12 +38,14 @@ class MainGame():
         self.HOLE_8 = self.HOLE_1.copy()
         self.HOLE_9 = self.HOLE_1.copy()
         self.ALIVE_MOLE = pygame.transform.scale(pygame.image.load('images/alive_mole.png'), (100, 100))
-        self.BEATEN_MOLE = pygame.transform.scale(pygame.image.load('images/beaten_mole.png'), (100, 100))
+        self.ALIVE_MOLE.set_colorkey((255, 255, 255))
+        self.BEATEN_MOLE = pygame.transform.scale(pygame.image.load('images/beaten_mole.jpg'), (100, 100))
+        self.BEATEN_MOLE.set_colorkey((0,0,0))
         #!Not using Joevan this time
         self.TROLL = pygame.transform.scale(pygame.image.load('images/trollface.png'), (100, 100))
-
+        self.TROLL.set_colorkey((0, 0, 255))
         self.HAMMER_IMAGE = pygame.transform.scale(pygame.image.load('images/hammer.png'), (100, 150))
-
+        self.HAMMER_IMAGE.set_colorkey((255, 255, 255))
         #!Only opens wav files
         #!Explain that I had lagging issues with 
         self.SQUEAK_AUDIO = pygame.mixer.Sound('audio/squeak.wav')
@@ -107,6 +110,7 @@ class MainGame():
         MainGame.window.blit(self.HOLE_9, (450, 675), (0, 75, 150, 75))
 
     def redraw(self):
+        '''
         print(len(self.moles))
         if len(self.moles) == 0:
             self.level += 1
@@ -123,7 +127,7 @@ class MainGame():
 
         #!To check whether any mole is moving
         is_moving = False
-
+        '''
         for mole in self.moles:
             if mole.finish:
                 self.moles.remove(mole)
@@ -138,7 +142,7 @@ class MainGame():
             else:
                 #!All the non-moving moles should be drawn first. 
                 mole.draw()
-        
+        '''
         #!Could cause index error because self.moles is changed in the previous for loop
         #!Show the error and then fix
         #!Happens because len(moles) == 0 but didn't finish method yet
@@ -147,8 +151,11 @@ class MainGame():
                 self.moles[0].going_up = True
         except IndexError:
             pass
-
-            
+        '''
+        a = Mole(75, 450, self.TROLL, self.TROLL, self.LAUGH_AUDIO, 6)
+        a.going_up = True
+        
+        self.moles = [a]
         self.draw_background()
 
         self.draw_hole_1()
@@ -156,7 +163,7 @@ class MainGame():
         for mole in self.moles:
             if mole.going_up or mole.going_down:
                 mole.draw()
-
+        
         self.draw_hole_2()
 
         #!Comment out because this can change

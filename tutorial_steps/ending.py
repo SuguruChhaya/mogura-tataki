@@ -209,9 +209,10 @@ class MainGame():
 
     def game_display(self):
         #Basic structure
-        self.clock.tick(self.FPS)
+        
         self.hammer = Hammer(self.HAMMER_IMAGE)
         while self.run:
+            self.clock.tick(self.FPS)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.run = False

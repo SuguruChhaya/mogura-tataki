@@ -37,7 +37,7 @@ class MainGame():
         self.HOLE_9 = self.HOLE_1.copy()
         self.ALIVE_MOLE = pygame.transform.scale(pygame.image.load('images/alive_mole.png'), (100, 100))
         self.ALIVE_MOLE.set_colorkey((255, 255, 255))
-        self.BEATEN_MOLE = pygame.transform.scale(pygame.image.load('images/beaten_mole.jpg'), (100, 100))
+        self.BEATEN_MOLE = pygame.transform.scale(pygame.image.load('images/beaten_mole.png'), (100, 100))
         self.BEATEN_MOLE.set_colorkey((0,0,0))
         #!Not using Joevan this time
         self.TROLL = pygame.transform.scale(pygame.image.load('images/trollface.png'), (100, 100))
@@ -45,7 +45,6 @@ class MainGame():
         self.HAMMER_IMAGE = pygame.transform.scale(pygame.image.load('images/hammer.png'), (100, 150))
         self.SQUEAK_AUDIO = pygame.mixer.music.load('audio/squeak.mp3')
         self.LAUGH_AUDIO = pygame.mixer.music.load('audio/laugh.mp3')
-        self.HAMMER_IMAGE.set_colorkey((255, 255, 255))
         self.SQUEAK_AUDIO = pygame.mixer.music.load('audio/squeak.mp3')
         self.LAUGH_AUDIO = pygame.mixer.music.load('audio/laugh.mp3')
 
@@ -65,6 +64,7 @@ class MainGame():
         self.mole_above_time_max = self.FPS * 1
         #For displaying lost message
         self.lost_counter = 0
+    
         #Used to display message
         self.HEADER_FONT = pygame.font.SysFont("comicsans", 50)
 
@@ -133,7 +133,6 @@ class MainGame():
 
         self.hammer.final_draw()
 
-        self.hammer.final_draw()
 
         pygame.display.update()
 
